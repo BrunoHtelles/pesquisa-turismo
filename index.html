@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesquisa de Turismo – Petrópolis | UFF</title>
+<style>
+  :root {
+    --azul: #1a3a6b;
+    --azul-medio: #1e4d8c;
+    --azul-claro: #2e6db4;
+    --azul-bg: #e8f0fb;
+    --azul-bg2: #dde8f7;
+    --cinza-claro: #f5f7fa;
+    --cinza-borda: #d0d8e8;
+    --texto: #1a1a2e;
+    --texto-secundario: #4a5568;
+    --branco: #ffffff;
+    --font-body: 'Georgia', serif;
+    --font-ui: 'Segoe UI', 'Trebuchet MS', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-ui);
+    color: var(--texto);
+    background: #f0f4fb;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ========== NAV ========== */
+  nav {
+    background: var(--azul);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 3px 12px rgba(26,58,107,0.3);
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+  }
+  .nav-logo-divider {
+    width: 1px; height: 30px;
+    background: rgba(255,255,255,0.3);
+  }
+  .nav-logo-text {
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: 0.1px;
+    opacity: 0.9;
+  }
+  .nav-logo-text strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 1;
+    letter-spacing: 0.2px;
+  }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-links a {
+    text-decoration: none;
+    color: rgba(255,255,255,0.82);
+    padding: 7px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-links a:hover { background: rgba(255,255,255,0.14); color: white; }
+  .nav-links a.active { background: rgba(255,255,255,0.18); color: white; font-weight: 600; }
+  .hamburger {
+    display: none; cursor: pointer; flex-direction: column; gap: 5px;
+    background: none; border: none; padding: 6px;
+  }
+  .hamburger span { width: 24px; height: 2px; background: white; display: block; border-radius: 2px; }
+
+  /* ========== PAGES ========== */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ========== HOME HERO ========== */
+  .home-hero {
+    background: linear-gradient(135deg, var(--azul) 0%, var(--azul-medio) 55%, var(--azul-claro) 100%);
+    color: white;
+    text-align: center;
+    padding: 52px 24px 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .home-hero::after {
+    content: '';
+    position: absolute; bottom: -80px; left: -40px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .hero-logo-area {
+    display: flex; align-items: center; justify-content: center;
+    gap: 20px; margin-bottom: 26px; position: relative;
+  }
+  .hero-divider { width: 1px; height: 46px; background: rgba(255,255,255,0.35); }
+  .hero-inst {
+    text-align: left;
+    font-size: 13px; opacity: 0.88; line-height: 1.55;
+  }
+  .hero-inst strong { font-size: 14px; display: block; opacity: 1; }
+  .home-hero h1 {
+    font-size: 27px; font-family: var(--font-body);
+    margin-bottom: 10px; font-weight: 700;
+    letter-spacing: -0.3px; position: relative;
+  }
+  .home-hero p {
+    font-size: 14px; opacity: 0.86;
+    max-width: 520px; margin: 0 auto; position: relative;
+  }
+
+  /* ========== FAZER PESQUISA ========== */
+  .fazer-pesquisa-section {
+    max-width: 680px; margin: 0 auto; padding: 38px 16px 56px;
+  }
+  .fazer-pesquisa-header {
+    text-align: center; margin-bottom: 28px;
+  }
+  .fazer-pesquisa-header h2 {
+    font-size: 24px; font-family: var(--font-body);
+    color: var(--azul); margin-bottom: 7px;
+  }
+  .fazer-pesquisa-header p {
+    color: var(--texto-secundario); font-size: 14px;
+  }
+
+  .perfil-pergunta {
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-radius: 12px;
+    padding: 28px 24px;
+    box-shadow: 0 2px 12px rgba(26,58,107,0.08);
+  }
+  .perfil-pergunta h3 {
+    font-size: 16px; color: var(--azul);
+    margin-bottom: 5px; font-family: var(--font-body);
+  }
+  .perfil-pergunta > p {
+    font-size: 13px; color: var(--texto-secundario);
+    margin-bottom: 22px;
+  }
+
+  .perfil-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+  }
+  .perfil-card {
+    background: var(--cinza-claro);
+    border: 1.5px solid var(--cinza-borda);
+    border-radius: 8px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; flex-direction: column;
+    align-items: flex-start; gap: 6px;
+  }
+  .perfil-card:hover {
+    border-color: var(--azul-claro);
+    background: var(--azul-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(26,58,107,0.12);
+  }
+  .perfil-card-icon {
+    width: 36px; height: 36px;
+    background: var(--azul-bg2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 4px;
+  }
+  .perfil-card-icon svg {
+    width: 20px; height: 20px;
+    stroke: var(--azul); fill: none; stroke-width: 1.8;
+  }
+  .perfil-nome {
+    font-size: 14px; font-weight: 700; color: var(--azul);
+  }
+  .perfil-desc {
+    font-size: 12px; color: var(--texto-secundario); line-height: 1.4;
+  }
+
+  /* ========== SURVEY ========== */
+  .survey-container { max-width: 680px; margin: 0 auto; padding: 32px 16px 60px; }
+  .survey-header { text-align: center; margin-bottom: 28px; }
+  .survey-header h1 {
+    font-family: var(--font-body); font-size: 22px;
+    color: var(--azul); margin-bottom: 6px;
+  }
+  .survey-header p { font-size: 13px; color: var(--texto-secundario); }
+  .badge-anon {
+    display: inline-block;
+    background: var(--azul-bg); color: var(--azul);
+    font-size: 12px; border-radius: 20px;
+    padding: 4px 14px; margin-top: 8px;
+    font-weight: 600; border: 1px solid var(--cinza-borda);
+  }
+
+  .public-selector {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; justify-content: center;
+  }
+  .public-btn {
+    padding: 8px 18px; border: 1.5px solid var(--cinza-borda);
+    border-radius: 20px; background: var(--branco);
+    cursor: pointer; font-size: 13px; font-family: var(--font-ui);
+    transition: all 0.2s; color: var(--texto);
+  }
+  .public-btn:hover { border-color: var(--azul-claro); color: var(--azul); }
+  .public-btn.selected { border-color: var(--azul); background: var(--azul); color: white; }
+
+  .form-section {
+    background: var(--branco); border: 1px solid var(--cinza-borda);
+    border-radius: 10px; padding: 22px; margin-bottom: 16px;
+    box-shadow: 0 1px 6px rgba(26,58,107,0.06);
+  }
+  .section-title {
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.9px; color: var(--azul);
+    border-bottom: 1px solid var(--azul-bg2);
+    padding-bottom: 10px; margin-bottom: 18px;
+  }
+  .section-subtitle {
+    font-size: 11px; color: var(--texto-secundario);
+    font-style: italic; margin-bottom: 14px; margin-top: -12px;
+  }
+
+  .field-group { margin-bottom: 16px; }
+  .field-label { font-size: 13px; font-weight: 600; margin-bottom: 7px; display: block; }
+  .field-required::after { content: ' *'; color: #c0392b; }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .radio-group label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; cursor: pointer; padding: 5px 11px;
+    border: 1px solid var(--cinza-borda); border-radius: 4px;
+    background: var(--cinza-claro); transition: all 0.15s;
+  }
+  .radio-group label:hover { border-color: var(--azul-claro); background: var(--azul-bg); }
+  .radio-group input { accent-color: var(--azul); }
+
+  input[type="text"], textarea {
+    width: 100%; padding: 9px 12px;
+    border: 1px solid var(--cinza-borda); border-radius: 6px;
+    font-family: var(--font-ui); font-size: 14px;
+    background: var(--cinza-claro); transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none; border-color: var(--azul-claro); background: var(--branco);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .likert-item { margin-bottom: 18px; }
+  .likert-statement { font-size: 13px; margin-bottom: 9px; line-height: 1.5; }
+  .likert-scale { display: flex; gap: 4px; }
+  .likert-scale label { flex: 1; text-align: center; cursor: pointer; }
+  .likert-scale input[type="radio"] { display: none; }
+  .likert-scale .lk-btn {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 7px 4px; border: 1px solid var(--cinza-borda);
+    border-radius: 5px; background: var(--cinza-claro);
+    gap: 2px; transition: all 0.15s; cursor: pointer;
+  }
+  .likert-scale .lk-num { font-weight: 700; font-size: 14px; color: var(--azul); }
+  .likert-scale .lk-txt { font-size: 10px; color: var(--texto-secundario); line-height: 1.2; }
+  .likert-scale input:checked + .lk-btn {
+    background: var(--azul); border-color: var(--azul);
+  }
+  .likert-scale input:checked + .lk-btn .lk-num { color: white; }
+  .likert-scale input:checked + .lk-btn .lk-txt { color: rgba(255,255,255,0.82); }
+
+  .nota-scale { display: flex; gap: 4px; flex-wrap: wrap; }
+  .nota-scale label { cursor: pointer; }
+  .nota-scale input { display: none; }
+  .nota-scale .nota-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border: 1px solid var(--cinza-borda);
+    border-radius: 5px; background: var(--cinza-claro);
+    font-weight: 700; font-size: 14px; transition: all 0.15s; cursor: pointer; color: var(--azul);
+  }
+  .nota-scale input:checked + .nota-btn {
+    background: var(--azul); border-color: var(--azul); color: white;
+  }
+
+  .submit-area { text-align: center; margin-top: 28px; }
+  .btn-submit {
+    background: var(--azul); color: white; border: none;
+    padding: 13px 44px; border-radius: 7px; cursor: pointer;
+    font-size: 15px; font-family: var(--font-ui); font-weight: 700;
+    transition: background 0.2s; letter-spacing: 0.3px;
+    box-shadow: 0 4px 14px rgba(26,58,107,0.25);
+  }
+  .btn-submit:hover { background: #122c54; }
+
+  .success-msg {
+    display: none; background: var(--azul-bg);
+    border: 1px solid var(--cinza-borda); border-radius: 10px;
+    padding: 32px; text-align: center; margin-top: 20px;
+  }
+  .success-msg h3 { color: var(--azul); font-size: 20px; margin-bottom: 8px; }
+  .success-msg p { font-size: 14px; color: var(--texto-secundario); }
+
+  /* ========== ABOUT ========== */
+  .about-container { max-width: 700px; margin: 0 auto; padding: 40px 16px 60px; }
+  .about-container h1 { font-family: var(--font-body); font-size: 24px; margin-bottom: 14px; color: var(--azul); }
+  .about-container > p { font-size: 14px; color: var(--texto-secundario); line-height: 1.8; margin-bottom: 16px; }
+  .about-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-top: 28px; }
+  .feature-card {
+    background: var(--branco); border: 1px solid var(--cinza-borda);
+    border-radius: 10px; padding: 20px;
+    box-shadow: 0 1px 6px rgba(26,58,107,0.06);
+  }
+  .feature-icon {
+    width: 44px; height: 44px; background: var(--azul-bg);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .feature-icon svg { width: 22px; height: 22px; stroke: var(--azul); fill: none; stroke-width: 1.8; }
+  .feature-card h3 { font-size: 14px; margin-bottom: 6px; color: var(--azul); }
+  .feature-card p { font-size: 13px; color: var(--texto-secundario); }
+  .researchers {
+    background: var(--branco); border: 1px solid var(--cinza-borda);
+    border-radius: 10px; padding: 22px; margin-top: 22px;
+    box-shadow: 0 1px 6px rgba(26,58,107,0.06);
+  }
+  .researchers h3 { font-size: 15px; margin-bottom: 14px; color: var(--azul); }
+  .researcher { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--cinza-borda); }
+  .researcher:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .researcher strong { font-size: 14px; display: block; margin-bottom: 3px; color: var(--texto); }
+  .researcher span { font-size: 12px; color: var(--texto-secundario); }
+
+  /* ========== FOOTER ========== */
+  footer {
+    background: var(--azul);
+    color: rgba(255,255,255,0.82);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between;
+    align-items: flex-start; flex-wrap: wrap; gap: 16px; font-size: 13px;
+  }
+  .footer-logo-area { display: flex; align-items: center; gap: 14px; }
+  .footer-logo-text { font-size: 12px; color: rgba(255,255,255,0.72); line-height: 1.6; }
+  .footer-logo-text strong { color: rgba(255,255,255,0.92); font-size: 13px; display: block; }
+  footer .footer-contact p { margin-bottom: 3px; font-size: 12px; }
+  footer .footer-links { display: flex; flex-direction: column; gap: 4px; text-align: right; }
+  footer .footer-links a { color: rgba(255,255,255,0.65); text-decoration: none; font-size: 12px; }
+  footer .footer-links a:hover { color: white; }
+
+  /* ========== MOBILE ========== */
+  @media (max-width: 600px) {
+    .hamburger { display: flex; }
+    .nav-links {
+      display: none; flex-direction: column; position: absolute;
+      top: 64px; left: 0; right: 0; background: var(--azul);
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding: 12px; box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 11px 16px; border-radius: 5px; }
+    .perfil-grid { grid-template-columns: 1fr 1fr; }
+    .hero-logo-area { flex-direction: column; gap: 12px; }
+    .hero-divider { width: 60px; height: 1px; }
+    .hero-inst { text-align: center; }
+    .likert-scale .lk-txt { display: none; }
+    footer { flex-direction: column; }
+    footer .footer-links { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="uff-symbol" viewBox="0 0 3840 1537">
+    <g transform="translate(0.000000,1537.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+      <path d="M19834 14279 c-1040 -80 -1922 -882 -2104 -1913 -35 -198 -40 -349 -40 -1182 l0 -814 -978 0 c-539 0 -1067 -3 -1175 -7 l-197 -6 -2 -1646 -3 -1646 -31 -88 c-42 -115 -84 -185 -168 -274 -128 -136 -291 -220 -474 -244 -331 -44 -671 153 -800 464 -65 156 -62 62 -62 1847 l0 1620 -1955 0 -1955 0 0 -780 0 -780 1153 -2 1152 -3 6 -950 c3 -522 9 -961 12 -975 3 -14 11 -56 17 -95 49 -295 176 -618 348 -880 344 -526 880 -888 1492 -1009 327 -65 826 -60 977 9 17 8 37 15 45 15 18 0 242 85 293 111 22 12 63 38 92 60 28 21 91 55 139 75 115 47 178 88 295 193 285 255 349 324 483 524 165 247 286 526 347 801 48 214 49 238 49 1194 l0 902 395 0 395 0 2 -1937 3 -1938 772 -3 773 -2 2 1957 3 1958 1578 3 1577 2 0 -1935 0 -1935 775 0 775 0 2 1933 3 1932 2333 3 2332 2 0 775 0 775 -2335 0 -2336 0 3 838 c3 823 4 838 25 914 78 276 290 487 561 560 57 15 108 20 192 20 135 0 230 -21 342 -77 202 -101 342 -270 409 -496 22 -71 23 -92 27 -532 l3 -457 772 2 772 3 0 480 c-1 496 -4 550 -46 765 -193 976 -1022 1736 -2019 1851 -146 17 -485 17 -585 1 -275 -46 -432 -83 -495 -116 -36 -19 -92 -45 -125 -57 -151 -56 -546 -361 -725 -560 -138 -154 -279 -361 -367 -539 -53 -108 -126 -307 -142 -385 -55 -272 -64 -330 -68 -462 l-6 -143 -38 0 -39 0 0 49 c0 157 -48 432 -106 614 -117 362 -296 655 -571 934 -217 221 -473 400 -698 488 -38 16 -106 45 -150 65 -44 21 -100 41 -125 45 -25 4 -72 16 -105 26 -33 9 -117 29 -186 43 -135 28 -293 32 -515 15z m316 -1564 c93 -22 234 -94 312 -160 113 -95 211 -244 254 -390 16 -53 18 -116 21 -532 l4 -473 775 0 774 0 0 -370 0 -370 -1550 0 -1550 0 0 818 c0 772 1 821 19 897 36 149 106 272 214 379 191 187 464 263 727 201z"/>
+      <path d="M803 2198 c3 -378 9 -627 16 -668 26 -151 133 -300 262 -364 111 -56 197 -71 399 -71 203 0 289 18 388 81 135 87 186 148 226 275 38 118 46 262 46 827 l0 522 -170 0 -169 0 -3 -617 c-3 -612 -3 -618 -25 -658 -47 -88 -122 -131 -246 -141 -130 -11 -234 22 -312 101 -76 75 -75 67 -75 732 l0 583 -171 0 -171 0 5 -602z"/>
+      <path d="M3900 2655 l0 -145 165 0 165 0 0 145 0 145 -165 0 -165 0 0 -145z"/>
+      <path d="M9310 2655 l0 -145 165 0 165 0 0 145 0 145 -165 0 -165 0 0 -145z"/>
+      <path d="M10730 2494 l0 -306 -51 46 c-28 25 -80 60 -117 78 -57 28 -78 33 -163 36 -158 7 -273 -39 -379 -149 -103 -108 -144 -239 -144 -469 -1 -175 11 -236 69 -358 144 -304 524 -375 758 -141 32 33 60 59 63 59 2 0 4 -38 4 -85 l0 -85 145 0 145 0 0 840 0 840 -165 0 -165 0 0 -306z m-211 -385 c105 -22 180 -112 202 -243 13 -79 7 -271 -10 -328 -17 -54 -72 -129 -120 -163 -39 -28 -50 -30 -126 -30 -77 0 -87 2 -127 30 -50 36 -103 110 -119 167 -47 177 -18 428 59 500 34 32 87 59 132 69 51 10 54 10 109 -2z"/>
+      <path d="M13440 2494 l0 -306 -51 46 c-28 25 -80 60 -117 78 -57 28 -78 33 -163 36 -159 7 -272 -38 -378 -149 -105 -110 -145 -239 -145 -469 -1 -175 11 -236 69 -358 144 -304 524 -375 758 -141 32 33 60 59 63 59 2 0 4 -38 4 -85 l0 -85 145 0 145 0 0 840 0 840 -165 0 -165 0 0 -306z m-211 -385 c105 -22 180 -112 202 -243 13 -79 7 -271 -10 -328 -17 -54 -72 -129 -120 -163 -39 -28 -50 -30 -126 -30 -77 0 -87 2 -127 30 -50 36 -103 110 -119 168 -33 123 -28 316 11 420 29 77 94 130 180 148 51 10 54 10 109 -2z"/>
+      <path d="M16040 1965 l0 -835 175 0 175 0 0 355 0 355 350 0 350 0 0 140 0 140 -347 2 -348 3 -3 198 -2 197 405 0 405 0 0 140 0 140 -580 0 -580 0 0 -835z"/>
+      <path d="M19530 2489 l0 -311 -42 42 c-89 89 -189 130 -316 130 -250 -1 -435 -163 -488 -429 -23 -119 -16 -348 16 -446 33 -103 74 -175 140 -242 95 -96 206 -143 335 -143 121 0 219 43 318 138 l67 65 0 -86 0 -87 145 0 145 0 0 840 0 840 -160 0 -160 0 0 -311z m-161 -391 c81 -30 141 -120 162 -242 15 -88 6 -255 -16 -321 -24 -71 -85 -149 -138 -174 -55 -27 -146 -28 -202 -2 -53 24 -120 100 -139 159 -39 119 -44 307 -11 420 42 140 201 214 344 160z"/>
+      <path d="M23640 1960 l0 -840 160 0 160 0 0 840 0 840 -160 0 -160 0 0 -840z"/>
+      <path d="M24950 1965 l0 -835 175 0 175 0 0 355 0 355 348 2 347 3 3 138 3 137 -351 0 -350 0 0 200 0 200 405 0 405 0 0 140 0 140 -580 0 -580 0 0 -835z"/>
+      <path d="M26370 1960 l0 -840 163 2 162 3 3 838 2 837 -165 0 -165 0 0 -840z"/>
+      <path d="M30500 2655 l0 -145 165 0 165 0 0 145 0 145 -165 0 -165 0 0 -145z"/>
+      <path d="M7637 2369 c-79 -18 -159 -80 -219 -169 -17 -24 -17 -23 -17 58 l-1 82 -150 0 -150 0 0 -610 0 -610 160 0 160 0 0 343 c0 188 5 369 10 402 14 88 56 165 105 192 56 31 133 31 203 -2 38 -18 54 -21 57 -12 3 6 25 69 49 139 l45 128 -22 15 c-51 36 -168 58 -230 44z"/>
+      <path d="M8370 2370 c-212 -21 -353 -112 -396 -258 -21 -67 -18 -171 7 -236 14 -40 35 -69 75 -105 68 -63 158 -99 394 -157 231 -58 238 -61 255 -94 36 -69 -5 -145 -90 -169 -52 -14 -188 -14 -236 1 -55 16 -114 70 -135 123 -11 25 -23 45 -28 45 -12 0 -310 -51 -313 -53 -1 -1 9 -29 22 -61 61 -151 218 -250 440 -277 157 -20 310 0 432 56 169 78 260 233 233 399 -28 172 -141 252 -455 322 -276 62 -335 87 -335 145 0 46 35 74 114 89 86 16 191 8 244 -19 38 -20 82 -67 82 -89 0 -22 23 -22 137 -2 168 29 173 30 173 43 0 30 -53 121 -97 168 -80 87 -177 121 -373 132 -41 2 -109 1 -150 -3z"/>
+      <path d="M11740 2369 c-220 -22 -351 -116 -416 -300 -12 -37 -12 -39 9 -44 43 -10 241 -45 257 -45 8 0 24 16 35 36 56 104 233 143 357 81 52 -27 68 -55 68 -127 l0 -56 -47 -13 c-27 -7 -118 -28 -203 -46 -336 -74 -414 -116 -479 -255 -22 -47 -26 -69 -26 -145 0 -103 24 -167 89 -242 81 -93 261 -137 407 -99 103 27 165 56 218 101 30 25 55 44 57 42 2 -2 12 -30 22 -63 l18 -59 157 -3 c86 -1 157 -1 157 1 0 2 -12 37 -27 78 l-26 74 -7 400 c-8 454 -11 474 -82 551 -98 106 -302 157 -538 133z m290 -766 c0 -127 -16 -172 -76 -221 -75 -62 -197 -81 -264 -41 -74 44 -111 120 -90 184 15 45 66 89 121 103 24 6 100 27 169 46 69 19 128 35 133 35 4 1 7 -47 7 -106z"/>
+      <path d="M21975 2373 c-86 -19 -146 -60 -206 -144 l-44 -60 -3 86 -3 85 -144 0 -145 0 0 -610 0 -610 155 0 155 0 1 203 c1 361 13 564 38 628 47 122 149 160 283 105 l56 -23 46 132 c25 73 46 137 46 142 0 29 -178 79 -235 66z"/>
+      <path d="M22730 2370 c-214 -21 -350 -110 -410 -269 -12 -30 -19 -59 -17 -65 3 -6 67 -22 142 -36 134 -23 139 -24 149 -6 24 42 71 88 110 109 57 29 181 29 248 0 60 -27 78 -57 81 -129 l2 -59 -130 -31 c-71 -18 -183 -44 -248 -59 -139 -31 -264 -89 -302 -139 -13 -17 -37 -59 -52 -91 -24 -51 -28 -73 -27 -146 0 -77 3 -93 33 -153 77 -158 274 -230 480 -177 98 26 139 45 209 100 54 43 55 43 66 -4 4 -16 12 -42 18 -57 l10 -28 154 0 c85 0 154 3 154 7 0 3 -12 41 -27 82 l-27 76 -7 400 c-3 229 -10 413 -16 431 -28 81 -83 144 -166 188 -89 47 -273 71 -427 56z m297 -768 c-3 -62 -12 -125 -21 -145 -32 -78 -131 -137 -229 -137 -64 0 -87 9 -130 49 -41 37 -57 73 -57 126 0 39 5 50 38 83 35 35 50 41 188 76 82 21 158 42 169 47 47 19 48 16 42 -99z"/>
+      <path d="M29000 2368 c-81 -13 -167 -57 -237 -121 -33 -32 -63 -57 -67 -57 -3 0 -6 34 -6 75 l0 75 -150 0 -150 0 0 -620 0 -620 165 0 164 0 3 408 3 407 28 57 c45 91 106 129 208 129 65 0 74 -2 101 -28 65 -61 63 -45 66 -525 l3 -438 164 0 164 0 3 403 c3 395 3 403 26 452 45 97 116 147 213 148 63 0 109 -20 140 -63 31 -42 39 -148 39 -542 l0 -378 161 0 160 0 -3 483 c-3 481 -3 482 -27 541 -33 82 -108 157 -185 185 -183 67 -364 34 -501 -91 l-55 -50 -46 51 c-52 57 -109 94 -169 109 -63 16 -155 20 -215 10z"/>
+      <path d="M35600 2370 c-139 -14 -212 -43 -291 -117 -27 -25 -61 -71 -76 -102 -24 -49 -28 -68 -28 -146 0 -73 5 -100 23 -140 58 -125 152 -176 479 -255 195 -47 219 -56 238 -84 22 -31 19 -98 -5 -124 -40 -43 -80 -56 -187 -60 -92 -4 -107 -2 -156 21 -57 26 -99 71 -118 125 -6 18 -16 32 -22 32 -7 0 -77 -11 -157 -25 -80 -14 -146 -25 -147 -25 -23 -1 49 -142 95 -188 55 -55 154 -108 248 -133 103 -28 325 -31 426 -6 232 57 370 216 355 409 -10 125 -65 206 -178 264 -79 39 -117 51 -321 99 -214 50 -273 72 -290 110 -10 22 -9 32 6 59 21 39 61 54 164 63 131 11 230 -30 262 -107 7 -16 18 -30 25 -30 20 0 278 50 283 54 10 11 -13 71 -48 124 -49 73 -123 129 -202 154 -52 16 -255 41 -293 36 -5 0 -44 -4 -85 -8z"/>
+      <path d="M3036 2349 c-67 -16 -153 -69 -216 -132 l-60 -60 0 86 0 87 -145 0 -145 0 0 -610 0 -610 165 0 165 0 0 388 c0 437 3 462 67 533 53 59 103 81 182 81 89 1 144 -29 180 -98 21 -43 31 -206 31 -546 l0 -348 160 0 160 0 0 438 c0 465 -5 524 -50 611 -31 62 -89 115 -167 152 -63 31 -76 33 -178 36 -60 1 -127 -2 -149 -8z"/>
+      <path d="M6146 2349 c-39 -9 -142 -58 -181 -85 -95 -66 -176 -189 -211 -319 -25 -94 -30 -285 -10 -386 37 -183 144 -336 279 -399 161 -76 414 -80 565 -10 87 40 177 132 225 229 21 41 36 75 35 77 -5 5 -309 56 -311 53 -1 -2 -12 -24 -25 -49 -15 -30 -38 -55 -70 -75 -42 -27 -55 -30 -128 -30 -72 0 -86 3 -130 30 -63 39 -108 106 -123 184 -7 34 -9 66 -6 71 4 6 153 10 406 10 l399 0 0 48 c0 84 -28 236 -59 321 -56 155 -153 258 -290 309 -55 21 -87 26 -196 28 -71 2 -148 -1 -169 -7z m259 -257 c90 -46 138 -112 150 -209 l7 -53 -245 0 -245 0 5 48 c19 180 184 288 328 214z"/>
+      <path d="M14386 2349 c-63 -15 -157 -65 -216 -114 -134 -114 -200 -285 -200 -518 0 -258 114 -474 293 -557 161 -76 414 -80 566 -10 85 40 176 133 225 230 20 40 35 74 34 76 -4 3 -291 54 -306 54 -7 0 -12 -7 -12 -15 0 -33 -30 -72 -82 -105 -44 -29 -64 -35 -119 -38 -146 -9 -261 95 -271 243 l-3 50 403 3 402 2 0 48 c0 71 -26 230 -49 295 -68 196 -180 307 -356 352 -65 17 -244 19 -309 4z m264 -259 c46 -24 110 -88 125 -125 7 -16 16 -54 20 -82 l7 -53 -246 0 -246 0 6 48 c6 47 41 134 66 162 68 76 177 97 268 50z"/>
+      <path d="M17760 2344 c-110 -30 -234 -117 -293 -207 -76 -116 -109 -244 -108 -422 1 -306 138 -517 386 -591 93 -29 316 -26 411 3 126 40 223 129 294 270 16 31 28 58 27 59 -8 9 -312 54 -314 48 -31 -87 -123 -154 -211 -154 -85 0 -131 18 -188 75 -40 40 -54 62 -67 111 -9 33 -17 72 -17 87 l0 27 405 0 405 0 0 28 c0 54 -21 208 -36 267 -54 209 -186 352 -369 400 -75 19 -251 19 -325 -1z m276 -259 c86 -50 134 -128 134 -217 l0 -38 -241 0 -242 0 7 53 c9 70 50 151 92 184 73 55 172 62 250 18z"/>
+      <path d="M20486 2349 c-109 -26 -249 -121 -308 -210 -77 -118 -109 -243 -109 -423 1 -307 138 -517 386 -592 93 -29 316 -26 411 3 126 40 223 129 294 270 16 31 28 58 27 59 -8 9 -312 54 -314 48 -41 -115 -174 -179 -301 -143 -71 20 -143 96 -165 175 -9 33 -17 72 -17 87 l0 27 405 0 405 0 0 28 c0 54 -21 208 -36 267 -55 212 -184 351 -370 400 -64 17 -244 19 -308 4z m260 -264 c86 -50 134 -128 134 -217 l0 -38 -241 0 -242 0 7 53 c9 70 50 151 92 184 73 55 172 62 250 18z"/>
+      <path d="M31668 2341 c-74 -24 -121 -53 -190 -120 l-58 -54 0 81 0 82 -150 0 -150 0 0 -610 0 -610 164 0 165 0 4 403 c2 279 7 413 15 438 17 52 84 124 134 144 65 26 154 24 206 -5 93 -53 101 -99 102 -602 l0 -368 166 0 166 0 -5 448 c-3 249 -10 468 -16 494 -27 121 -89 201 -199 255 -72 36 -81 38 -186 40 -86 2 -124 -1 -168 -16z"/>
+      <path d="M32869 2349 c-104 -24 -246 -117 -300 -196 -82 -118 -119 -253 -119 -431 0 -310 136 -523 380 -597 75 -22 247 -30 340 -16 158 25 286 120 363 270 20 41 36 75 35 77 -3 2 -293 54 -307 54 -4 0 -13 -18 -20 -39 -12 -41 -64 -91 -115 -111 -15 -5 -53 -10 -84 -10 -137 0 -245 104 -254 245 l-3 50 398 3 397 2 0 33 c0 18 -5 71 -10 117 -38 307 -167 485 -396 545 -63 16 -244 19 -305 4z m261 -259 c46 -24 106 -86 123 -130 8 -19 18 -56 21 -82 l7 -48 -246 0 -247 0 7 43 c10 64 25 108 53 150 58 88 183 118 282 67z"/>
+      <path d="M34378 2341 c-74 -24 -121 -53 -190 -120 l-58 -54 0 81 0 82 -150 0 -150 0 0 -610 0 -610 164 0 165 0 4 403 c2 310 6 411 17 440 20 55 82 122 132 142 65 26 154 24 206 -5 93 -53 101 -99 102 -602 l0 -368 166 0 166 0 -5 448 c-3 249 -10 468 -16 494 -27 121 -89 201 -199 255 -72 36 -81 38 -186 40 -86 2 -124 -1 -168 -16z"/>
+      <path d="M36869 2349 c-95 -22 -238 -111 -291 -181 -84 -110 -128 -262 -128 -444 0 -313 135 -525 380 -599 30 -9 101 -19 157 -22 239 -14 397 51 504 208 42 62 83 149 71 149 -4 0 -72 11 -150 25 -78 14 -147 25 -151 25 -5 0 -12 -12 -16 -27 -9 -42 -34 -68 -99 -102 -97 -51 -200 -40 -280 30 -49 43 -84 115 -93 190 l-6 49 407 0 406 0 0 33 c0 18 -5 71 -10 117 -38 307 -168 485 -396 545 -63 16 -244 19 -305 4z m261 -259 c48 -24 115 -98 128 -141 6 -19 12 -53 15 -76 l5 -43 -244 0 c-278 0 -256 -9 -229 93 42 163 187 237 325 167z"/>
+      <path d="M26990 1936 c0 -238 5 -448 11 -493 24 -180 115 -284 286 -328 156 -41 357 16 462 131 l51 56 0 -86 0 -87 158 3 157 3 3 608 2 607 -165 0 -165 0 0 -332 c0 -477 -10 -537 -97 -604 -126 -96 -320 -57 -355 71 -7 25 -13 199 -15 453 l-5 412 -164 0 -164 0 0 -414z"/>
+      <path d="M3900 1730 l0 -610 165 0 165 0 0 610 0 610 -165 0 -165 0 0 -610z"/>
+      <path d="M4394 2323 c4 -10 113 -285 244 -610 l237 -593 141 0 141 0 236 603 c130 331 237 606 237 610 0 4 -72 7 -159 7 l-160 0 -21 -57 c-108 -287 -240 -656 -240 -670 0 -10 -8 -36 -18 -57 l-18 -40 -37 115 c-20 63 -86 247 -146 409 l-109 295 -167 3 c-157 2 -167 1 -161 -15z"/>
+      <path d="M9310 1730 l0 -610 165 0 165 0 0 610 0 610 -165 0 -165 0 0 -610z"/>
+      <path d="M30500 1730 l0 -610 165 0 165 0 0 610 0 610 -165 0 -165 0 0 -610z"/>
+    </g>
+  </symbol>
+</svg>
+
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home')">
+    <svg style="height:36px;width:auto;color:white" viewBox="0 0 3840 1537"><use href="#uff-symbol"/></svg>
+    <div class="nav-logo-divider"></div>
+    <div class="nav-logo-text">
+      <strong>TET-PTP</strong>
+      Pesquisa de Turismo em Petrópolis
+    </div>
+  </a>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links" id="navLinks">
+    <a href="#" onclick="showPage('home')" class="active" id="nav-home">Início</a>
+    <a href="#" onclick="showPage('survey')" id="nav-survey">Pesquisas</a>
+    <a href="#" onclick="showPage('about')" id="nav-about">Sobre</a>
+  </div>
+</nav>
+
+<div class="page active" id="page-home">
+  <div class="home-hero">
+    <div class="hero-logo-area">
+      <svg style="height:54px;width:auto;color:white;opacity:0.95" viewBox="0 0 3840 1537"><use href="#uff-symbol"/></svg>
+      <div class="hero-divider"></div>
+      <div class="hero-inst">
+        <strong>COPPE/UFRJ · PEP/UFF</strong>
+        Cooperação acadêmica com a<br>
+        Prefeitura Municipal de Petrópolis
+      </div>
+    </div>
+    <h1>Pesquisa de Turismo em Petrópolis</h1>
+    <p>Projeto TET-PTP — Toolkit Educacional e Científico para análise do turismo. Sua participação é fundamental para a pesquisa.</p>
+  </div>
+
+  <div class="fazer-pesquisa-section">
+    <div class="fazer-pesquisa-header">
+      <h2>Fazer Pesquisa</h2>
+      <p>Selecione o perfil que melhor descreve você para iniciar</p>
+    </div>
+
+    <div class="perfil-pergunta">
+      <h3>Qual é o seu perfil?</h3>
+      <p>Clique no perfil correspondente para responder o questionário específico para você.</p>
+
+      <div class="perfil-grid">
+        <div class="perfil-card" onclick="openSurvey('turista')">
+          <div class="perfil-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>
+          </div>
+          <div class="perfil-nome">Turista</div>
+          <div class="perfil-desc">Está visitando Petrópolis</div>
+        </div>
+
+        <div class="perfil-card" onclick="openSurvey('morador')">
+          <div class="perfil-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="perfil-nome">Morador</div>
+          <div class="perfil-desc">Reside em Petrópolis</div>
+        </div>
+
+        <div class="perfil-card" onclick="openSurvey('trabalhador')">
+          <div class="perfil-card-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          </div>
+          <div class="perfil-nome">Trabalhador</div>
+          <div class="perfil-desc">Atua no setor turístico local</div>
+        </div>
+
+        <div class="perfil-card" onclick="openSurvey('empresario')">
+          <div class="perfil-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <div class="perfil-nome">Empresário</div>
+          <div class="perfil-desc">Possui negócio ligado ao turismo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-survey">
+  <div class="survey-container">
+    <div class="survey-header">
+      <h1 id="survey-title">Pesquisa de Turismo em Petrópolis</h1>
+      <p>Sua participação é muito importante!</p>
+      <span class="badge-anon">&#128274; Todas as respostas são anônimas</span>
+    </div>
+
+    <div class="public-selector">
+      <button class="public-btn" onclick="selectPublic('turista')">Turista</button>
+      <button class="public-btn" onclick="selectPublic('morador')">Morador</button>
+      <button class="public-btn" onclick="selectPublic('trabalhador')">Trabalhador</button>
+      <button class="public-btn" onclick="selectPublic('empresario')">Empresário</button>
+    </div>
+
+    <div id="survey-form-container"></div>
+
+    <div class="success-msg" id="success-msg">
+      <h3>Respostas enviadas com sucesso!</h3>
+      <p>Obrigado pela sua contribuição para a pesquisa de turismo em Petrópolis.<br>Seus dados são fundamentais para melhorar a experiência turística da cidade.</p>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-about">
+  <div class="about-container">
+    <h1>Sobre a Plataforma</h1>
+    <p>Esta plataforma tem como objetivo coletar opiniões e informações por meio de pesquisas para apoiar o desenvolvimento e a melhoria contínua do turismo em Petrópolis. Os dados são usados exclusivamente para fins acadêmicos e científicos.</p>
+    <p>O projeto <strong>TET-PTP</strong> (Toolkit Educacional e Científico para Turismo em Petrópolis) é desenvolvido em cooperação entre a <strong>COPPE/UFRJ</strong>, a <strong>UFF Petrópolis</strong> e a <strong>Prefeitura Municipal de Petrópolis</strong>.</p>
+
+    <div class="about-features">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Privacidade</h3>
+        <p>Suas respostas são anônimas e utilizadas apenas para fins de pesquisa.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Segurança</h3>
+        <p>Seus dados são protegidos e não são compartilhados com terceiros.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Transparência</h3>
+        <p>Os resultados são utilizados para gerar melhorias e políticas públicas.</p>
+      </div>
+    </div>
+
+    <div class="researchers">
+      <h3>Pesquisadores Responsáveis</h3>
+      <div class="researcher">
+        <strong>Prof. Elton Fernandes, PhD</strong>
+        <span>Programas de Engenharia de Produção e de Engenharia de Transportes — COPPE/UFRJ</span>
+      </div>
+      <div class="researcher">
+        <strong>Prof. Dr. Eng. Douglas Rodrigues</strong>
+        <span>Escola de Engenharia de Petrópolis — PEP/UFF · PPGEP/EEIMVR/UFF</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo-area">
+    <svg style="height:32px;width:auto;color:rgba(255,255,255,0.82)" viewBox="0 0 3840 1537"><use href="#uff-symbol"/></svg>
+  </div>
+  <div class="footer-contact">
+    <p><strong style="color:rgba(255,255,255,0.92)">Contato</strong></p>
+    <p>contato@pesquisa-petropolis.edu.br</p>
+    <p>COPPE/UFRJ · PEP/UFF</p>
+  </div>
+  <div class="footer-links">
+    <a href="#">Política de Privacidade</a>
+    <a href="#">Termos de Uso</a>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+// CONFIGURAÇÕES REAIS DO SEU PROJETO FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDSqufQ6vdgitvtiPpmR5Min4LkpMrqqRQ",
+  authDomain: "pesquisa-turismo-ptp.firebaseapp.com",
+  projectId: "pesquisa-turismo-ptp",
+  storageBucket: "pesquisa-turismo-ptp.firebasestorage.app",
+  messagingSenderId: "268649941715",
+  appId: "1:268649941715:web:830c7df285ce2344746226"
+};
+
+// Inicializa o Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const LIKERT_LABELS = ['DT','D','N','C','CT'];
+
+const surveys = {
+  turista: {
+    title: 'Questionário – Turista em Petrópolis',
+    sections: [
+      {id:'ident',title:'Identificação',fields:[
+        {id:'faixa_etaria',label:'Faixa etária',type:'radio',required:true,options:['Até 17 anos','18 a 24 anos','25 a 34 anos','35 a 44 anos','45 a 59 anos','60 anos ou mais']},
+        {id:'genero',label:'Gênero',type:'radio',required:true,options:['Feminino','Masculino','Outro','Prefiro não informar']},
+        {id:'escolaridade',label:'Escolaridade',type:'radio',required:true,options:['Ensino fundamental','Ensino médio','Ensino técnico','Superior incompleto','Superior completo','Pós-graduação']},
+        {id:'renda',label:'Renda mensal',type:'radio',options:['Até 1 SM','1 a 3 SM','3 a 5 SM','5 a 10 SM','Acima de 10 SM','Prefiro não informar']},
+        {id:'motivo',label:'Principal motivo da visita',type:'radio',required:true,options:['Lazer','Cultura','Natureza','Gastronomia','Negócios','Evento','Outro']},
+        {id:'hospedagem',label:'Tipo de hospedagem',type:'radio',options:['Hotel / pousada','Casa de parentes/amigos','Aluguel por aplicativo','Hostel','Outro']},
+        {id:'permanencia',label:'Tempo de permanência',type:'radio',required:true,options:['1 dia','2–3 dias','Mais de 3 dias']},
+        {id:'origem',label:'Origem (cidade/estado/País)',type:'text',placeholder:'Ex: Rio de Janeiro / RJ / Brasil'},
+        {id:'local_coleta',label:'Local da coleta',type:'text',placeholder:'Ex: Centro Histórico'},
+      ]},
+      {id:'etpi',title:'ETPI – Sustentabilidade Ambiental',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Percebi que o destino adota práticas eficazes de gestão ambiental.',
+        'Observei níveis adequados de limpeza urbana e conservação dos espaços turísticos.',
+        'O turismo parece contribuir para a preservação dos recursos naturais locais.',
+        'Não identifiquei sinais relevantes de degradação ambiental associados ao turismo.',
+        'O destino demonstra preocupação ativa com sustentabilidade ecológica.',
+      ]},
+      {id:'rhs',title:'RHS – Hospitalidade Relacional',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Fui recebido(a) de forma cordial e respeitosa pela comunidade local.',
+        'Percebi uma relação harmoniosa entre turistas e moradores.',
+        'Os serviços turísticos demonstram qualidade no atendimento.',
+        'As interações sociais contribuíram positivamente para minha experiência.',
+        'O turismo parece beneficiar a população local.',
+      ]},
+      {id:'twi',title:'TWI – Bem-estar',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'A experiência turística proporcionou sensação de bem-estar.',
+        'Senti-me seguro(a) durante toda a visita.',
+        'A cidade oferece um ambiente agradável e confortável.',
+        'Minha experiência geral foi satisfatória.',
+        'Eu recomendaria este destino a outras pessoas.',
+      ]},
+      {id:'cipm',title:'CIPM – Imersão Cultural',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'A cultura local está claramente presente nas experiências oferecidas.',
+        'As atividades turísticas refletem a identidade do destino.',
+        'As experiências parecem autênticas e não artificializadas.',
+        'O patrimônio histórico é bem preservado.',
+        'Tive oportunidade de aprender sobre a cultura local.',
+      ]},
+      {id:'talqi',title:'TALQI – Tempo e Lazer',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Tive tempo suficiente para aproveitar o destino.',
+        'O ritmo da experiência foi adequado e confortável.',
+        'Os deslocamentos não comprometeram meu tempo de lazer.',
+        'A experiência não foi estressante.',
+        'Houve equilíbrio entre atividades e descanso.',
+      ]},
+      {id:'geral',title:'Avaliação Geral',fields:[
+        {id:'nota_destino',label:'Nota geral do destino (0–10)',type:'nota',max:10},
+        {id:'nota_retorno',label:'Pretendo retornar a Petrópolis (0–5)',type:'nota',max:5},
+        {id:'comentario',label:'Comentário aberto (opcional)',type:'textarea',placeholder:'Deixe aqui sua impressão, sugestão ou observação...'},
+      ]}
+    ]
+  },
+  morador: {
+    title: 'Questionário – Morador de Petrópolis',
+    sections: [
+      {id:'ident',title:'Identificação',fields:[
+        {id:'faixa_etaria',label:'Faixa etária',type:'radio',required:true,options:['Até 17 anos','18 a 24 anos','25 a 34 anos','35 a 44 anos','45 a 59 anos','60 anos ou mais']},
+        {id:'genero',label:'Gênero',type:'radio',required:true,options:['Feminino','Masculino','Outro','Prefiro não informar']},
+        {id:'escolaridade',label:'Escolaridade',type:'radio',required:true,options:['Ensino fundamental','Ensino médio','Ensino técnico','Superior incompleto','Superior completo','Pós-graduação']},
+        {id:'renda',label:'Renda mensal',type:'radio',options:['Até 1 SM','1 a 3 SM','3 a 5 SM','5 a 10 SM','Acima de 10 SM','Prefiro não informar']},
+        {id:'tempo_moradia',label:'Tempo de moradia em Petrópolis',type:'radio',required:true,options:['Até 1 ano','2–3 anos','Mais de 3 anos']},
+        {id:'origem',label:'Origem (cidade/estado/País)',type:'text',placeholder:'Ex: Petrópolis / RJ / Brasil'},
+        {id:'local_coleta',label:'Local da coleta',type:'text',placeholder:'Ex: Bairro / Distrito'},
+      ]},
+      {id:'etpi',title:'ETPI – Sustentabilidade Ambiental',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'O turismo impacta negativamente o meio ambiente local.',
+        'Há boa gestão de resíduos nas áreas turísticas.',
+        'Os espaços naturais são preservados apesar da atividade turística.',
+        'O turismo contribui para melhorias ambientais.',
+        'Existe preocupação com sustentabilidade no planejamento urbano.',
+      ]},
+      {id:'rhs',title:'RHS – Relações Sociais',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Os turistas respeitam a população local.',
+        'O turismo melhora a convivência social na cidade.',
+        'A comunidade participa das decisões sobre turismo.',
+        'O turismo gera incômodos no cotidiano.',
+        'Há diálogo entre comunidade e setor turístico.',
+      ]},
+      {id:'twi',title:'TWI – Bem-estar',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'O turismo melhora a qualidade de vida local.',
+        'Os serviços públicos atendem à demanda turística.',
+        'Sinto-me seguro(a) em áreas turísticas.',
+        'O turismo contribui para o bem-estar da população.',
+        'Há equilíbrio entre turismo e vida cotidiana.',
+      ]},
+      {id:'cipm',title:'CIPM – Cultura',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'O turismo valoriza a cultura local.',
+        'As tradições são respeitadas pelos visitantes.',
+        'Há risco de descaracterização cultural.',
+        'O patrimônio histórico é bem preservado.',
+        'A identidade local é fortalecida pelo turismo.',
+      ]},
+      {id:'talqi',title:'TALQI – Tempo',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'O turismo interfere na rotina diária dos moradores.',
+        'Há excesso de visitantes em determinados períodos.',
+        'O turismo aumenta o custo de vida local.',
+        'Há equilíbrio sazonal no fluxo de turistas.',
+        'O turismo respeita o ritmo de vida da comunidade.',
+      ]},
+      {id:'geral',title:'Avaliação Geral',fields:[
+        {id:'nota_turismo',label:'Nota geral para o turismo em Petrópolis (0–10)',type:'nota',max:10},
+        {id:'comentario',label:'Comentário aberto (opcional)',type:'textarea',placeholder:'Deixe aqui sua impressão, sugestão ou observação...'},
+      ]}
+    ]
+  },
+  trabalhador: {
+    title: 'Questionário – Trabalhador do Turismo em Petrópolis',
+    sections: [
+      {id:'ident',title:'Identificação',fields:[
+        {id:'faixa_etaria',label:'Faixa etária',type:'radio',required:true,options:['Até 17 anos','18 a 24 anos','25 a 34 anos','35 a 44 anos','45 a 59 anos','60 anos ou mais']},
+        {id:'genero',label:'Gênero',type:'radio',required:true,options:['Feminino','Masculino','Outro','Prefiro não informar']},
+        {id:'escolaridade',label:'Escolaridade',type:'radio',required:true,options:['Ensino fundamental','Ensino médio','Ensino técnico','Superior incompleto','Superior completo','Pós-graduação']},
+        {id:'renda',label:'Renda mensal',type:'radio',options:['Até 1 SM','1 a 3 SM','3 a 5 SM','5 a 10 SM','Acima de 10 SM','Prefiro não informar']},
+        {id:'tempo_atuacao',label:'Tempo de atuação no turismo',type:'radio',required:true,options:['Até 1 ano','2–3 anos','Mais de 3 anos']},
+        {id:'area_atuacao',label:'Área de atuação',type:'radio',required:true,options:['Hotel','Guia de turismo','Comércio varejista','Indústria','Agência','Outro']},
+        {id:'origem',label:'Origem (cidade/estado/País)',type:'text',placeholder:'Ex: Petrópolis / RJ / Brasil'},
+        {id:'local_coleta',label:'Local da coleta',type:'text',placeholder:'Ex: Centro Histórico'},
+      ]},
+      {id:'etpi',title:'ETPI – Sustentabilidade',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'O local de trabalho adota práticas ambientais responsáveis.',
+        'Há preocupação com redução de impactos ambientais.',
+        'A atividade turística pressiona recursos naturais.',
+        'Existem políticas ambientais no setor.',
+        'A sustentabilidade é valorizada na operação.',
+      ]},
+      {id:'rhs',title:'RHS – Relações',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'A relação com turistas é respeitosa.',
+        'Há reconhecimento do trabalho realizado.',
+        'O ambiente de trabalho é colaborativo.',
+        'Os turistas valorizam os serviços prestados.',
+        'Existe respeito entre trabalhadores e clientes.',
+      ]},
+      {id:'twi',title:'TWI – Bem-estar',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Minhas condições de trabalho são adequadas.',
+        'O turismo impacta positivamente meu bem-estar.',
+        'Sinto segurança no ambiente de trabalho.',
+        'Há equilíbrio entre trabalho e vida pessoal.',
+        'O trabalho no turismo é satisfatório.',
+      ]},
+      {id:'cipm',title:'CIPM – Cultura',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Meu trabalho envolve elementos da cultura local.',
+        'Há valorização da identidade cultural no setor.',
+        'As atividades respeitam tradições locais.',
+        'Existe autenticidade nas experiências oferecidas.',
+        'A cultura é integrada às práticas turísticas.',
+      ]},
+      {id:'talqi',title:'TALQI – Tempo',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Minha carga de trabalho é equilibrada.',
+        'Há sobrecarga em períodos de alta demanda.',
+        'Existe previsibilidade na jornada de trabalho.',
+        'O tempo de descanso é adequado.',
+        'O ritmo de trabalho é sustentável.',
+      ]},
+      {id:'geral',title:'Avaliação Geral',fields:[
+        {id:'nota_turismo',label:'Nota geral para o turismo em Petrópolis (0–10)',type:'nota',max:10},
+        {id:'comentario',label:'Comentário aberto (opcional)',type:'textarea',placeholder:'Deixe aqui sua impressão, sugestão ou observação...'},
+      ]}
+    ]
+  },
+  empresario: {
+    title: 'Questionário – Empresário do Turismo em Petrópolis',
+    sections: [
+      {id:'ident',title:'Identificação',fields:[
+        {id:'faixa_etaria',label:'Faixa etária',type:'radio',required:true,options:['Até 17 anos','18 a 24 anos','25 a 34 anos','35 a 44 anos','45 a 59 anos','60 anos ou mais']},
+        {id:'genero',label:'Gênero',type:'radio',required:true,options:['Feminino','Masculino','Outro','Prefiro não informar']},
+        {id:'escolaridade',label:'Escolaridade',type:'radio',required:true,options:['Ensino fundamental','Ensino médio','Ensino técnico','Superior incompleto','Superior completo','Pós-graduação']},
+        {id:'renda',label:'Renda mensal',type:'radio',options:['Até 1 SM','1 a 3 SM','3 a 5 SM','5 a 10 SM','Acima de 10 SM','Prefiro não informar']},
+        {id:'tempo_atuacao',label:'Tempo de atuação no turismo',type:'radio',required:true,options:['Até 1 ano','2–3 anos','Mais de 3 anos']},
+        {id:'area_atuacao',label:'Área de atuação',type:'radio',required:true,options:['Hotel','Guia de turismo','Comércio varejista','Indústria','Agência','Outro']},
+        {id:'origem',label:'Origem (cidade/estado/País)',type:'text',placeholder:'Ex: Petrópolis / RJ / Brasil'},
+        {id:'local_coleta',label:'Local da coleta',type:'text',placeholder:'Ex: Centro / Quitandinha'},
+      ]},
+      {id:'etpi',title:'ETPI – Sustentabilidade',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Minha empresa adota práticas ambientais sustentáveis.',
+        'Há incentivos para sustentabilidade no setor.',
+        'O turismo pressiona recursos ambientais locais.',
+        'Investimentos ambientais são viáveis economicamente.',
+        'Existe regulação ambiental adequada.',
+      ]},
+      {id:'rhs',title:'RHS – Relações',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Há boa relação com a comunidade local.',
+        'Existe cooperação entre empresas do setor.',
+        'Os turistas valorizam os serviços oferecidos.',
+        'Há conflitos entre turismo e comunidade.',
+        'A atividade turística gera benefícios sociais.',
+      ]},
+      {id:'twi',title:'TWI – Viabilidade Econômica',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'O turismo é economicamente viável.',
+        'Há estabilidade na demanda turística.',
+        'O setor apresenta crescimento sustentável.',
+        'Os custos operacionais são adequados.',
+        'Existe retorno financeiro consistente.',
+      ]},
+      {id:'cipm',title:'CIPM – Cultura',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'Os produtos refletem a cultura local.',
+        'Há valorização da identidade regional.',
+        'Existe pressão por padronização dos serviços.',
+        'A autenticidade cultural agrega valor ao negócio.',
+        'O patrimônio cultural é incorporado à oferta.',
+      ]},
+      {id:'talqi',title:'TALQI – Tempo',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+        'O fluxo turístico é equilibrado ao longo do ano.',
+        'Há forte sazonalidade no negócio.',
+        'A gestão do tempo operacional é eficiente.',
+        'O ritmo da atividade é sustentável.',
+        'Existe previsibilidade na demanda.',
+      ]},
+      {id:'geral',title:'Avaliação Geral',fields:[
+        {id:'nota_turismo',label:'Nota geral para o turismo em Petrópolis (0–10)',type:'nota',max:10},
+        {id:'comentario',label:'Comentário aberto (opcional)',type:'textarea',placeholder:'Deixe aqui sua impressão, sugestão ou observação...'},
+      ]}
+    ]
+  }
+};
+
+let currentPublic = null;
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('nav-' + name).classList.add('active');
+  document.getElementById('navLinks').classList.remove('open');
+  window.scrollTo(0, 0);
+}
+
+function toggleMenu() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+function openSurvey(pub) {
+  showPage('survey');
+  selectPublic(pub);
+}
+
+function selectPublic(pub) {
+  currentPublic = pub;
+  const labels = {turista:'Turista', morador:'Morador', trabalhador:'Trabalhador', empresario:'Empresário'};
+  document.querySelectorAll('.public-btn').forEach(b => {
+    b.classList.toggle('selected', b.textContent.trim() === labels[pub]);
+  });
+  document.getElementById('survey-title').textContent = surveys[pub].title;
+  document.getElementById('success-msg').style.display = 'none';
+  renderSurvey(pub);
+}
+
+function renderSurvey(pub) {
+  const data = surveys[pub];
+  const container = document.getElementById('survey-form-container');
+  let html = `<div id="main-form">`;
+
+  data.sections.forEach((sec) => {
+    html += `<div class="form-section">`;
+    html += `<div class="section-title">${sec.title}</div>`;
+    if (sec.subtitle) html += `<div class="section-subtitle">${sec.subtitle}</div>`;
+
+    if (sec.type === 'likert') {
+      sec.items.forEach((item, ii) => {
+        const name = `${pub}_${sec.id}_${ii}`;
+        html += `<div class="likert-item"><div class="likert-statement">${ii+1}. ${item}</div><div class="likert-scale">`;
+        for (let v = 1; v <= 5; v++) {
+          html += `<label><input type="radio" name="${name}" value="${v}"><div class="lk-btn"><span class="lk-num">${v}</span><span class="lk-txt">${LIKERT_LABELS[v-1]}</span></div></label>`;
+        }
+        html += `</div></div>`;
+      });
+    } else if (sec.fields) {
+      sec.fields.forEach(field => {
+        html += `<div class="field-group"><label class="field-label${field.required?' field-required':''}">${field.label}</label>`;
+        if (field.type === 'radio') {
+          html += `<div class="radio-group">`;
+          field.options.forEach(opt => {
+            html += `<label><input type="radio" name="${pub}_${sec.id}_${field.id}" value="${opt}"> ${opt}</label>`;
+          });
+          html += `</div>`;
+        } else if (field.type === 'text') {
+          html += `<input type="text" name="${pub}_${sec.id}_${field.id}" placeholder="${field.placeholder||''}">`;
+        } else if (field.type === 'textarea') {
+          html += `<textarea name="${pub}_${sec.id}_${field.id}" placeholder="${field.placeholder||''}"></textarea>`;
+        } else if (field.type === 'nota') {
+          html += `<div class="nota-scale">`;
+          for (let n = 0; n <= field.max; n++) {
+            html += `<label><input type="radio" name="${pub}_${sec.id}_${field.id}" value="${n}"><span class="nota-btn">${n}</span></label>`;
+          }
+          html += `</div>`;
+        }
+        html += `</div>`;
+      });
+    }
+    html += `</div>`;
+  });
+
+  html += `<div class="submit-area"><button class="btn-submit" onclick="submitSurvey()">Enviar Respostas</button></div></div>`;
+  container.innerHTML = html;
+}
+
+// COLETA OS CAMPOS SELECIONADOS E GRAVA DIRETAMENTE NO SEU FIRESTORE
+function submitSurvey() {
+  const formContainer = document.getElementById('survey-form-container');
+  const inputs = formContainer.querySelectorAll('input:checked, textarea, input[type="text"]');
+  
+  let dadosResposta = {
+    perfil: currentPublic,
+    timestamp: new Date().toISOString()
+  };
+
+  inputs.forEach(input => {
+    const partesId = input.name.split('_');
+    const nomeCampo = partesId[partesId.length - 1]; 
+    dadosResposta[nomeCampo] = input.value;
+  });
+
+  // Envia para a coleção "respostas" do seu banco Firestore
+  db.collection("respostas").add(dadosResposta)
+  .then(() => {
+    document.getElementById('main-form').style.display = 'none';
+    const sm = document.getElementById('success-msg');
+    sm.style.display = 'block';
+    window.scrollTo({ top: sm.offsetTop - 80, behavior: 'smooth' });
+  })
+  .catch((error) => {
+    console.error("Erro ao gravar dados no Firebase: ", error);
+    alert("Falha ao processar e salvar as respostas. Tente novamente.");
+  });
+}
+
+showPage('home');
+</script>
+</body>
+</html>
