@@ -1,0 +1,52 @@
+name: Backup do Firebase para o GitHub
+on:
+  schedule:
+    - cron: '0 0 * * *' # Roda sozinho à meia-noite
+  workflow_dispatch: # Adiciona o botão para rodar manualmente
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Instalar dependências de exportação
+      run: npm install firebase-admin
+
+    - name: Executar script de extração
+      env:
+        FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      run: |
+        node -e '
+        const admin = require("firebase-admin");
+        const fs = require("fs");
+        
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+        
+        const db = admin.firestore();
+        db.collection("respostas").get().then(snapshot => {
+          const dados = [];
+          snapshot.forEach(doc => dados.push(doc.data()));
+          fs.writeFileSync("respostas.json", JSON.stringify(dados, null, 2));
+          console.log("Banco de dados baixado!");
+          process.exit(0);
+        }).catch(err => {
+          console.error(err);
+          process.exit(1);
+        });
+        '
+
+    - name: Commitar e empurrar o arquivo para o GitHub
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add respostas.json
+        git diff-index --quiet HEAD || git commit -m "Automação: Atualizando banco de dados respostas.json"
+        git push
