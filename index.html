@@ -563,7 +563,7 @@
     <div class="researchers">
       <h3>Pesquisadores Responsáveis</h3>
       <div class="researcher">
-        <strong>Prof. Elton Fernandes, PhD</strong>
+        export <strong>Prof. Elton Fernandes, PhD</strong>
         <span>Programas de Engenharia de Produção e de Engenharia de Transportes — COPPE/UFRJ</span>
       </div>
       <div class="researcher">
@@ -608,6 +608,12 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const LIKERT_LABELS = ['DT','D','N','C','CT'];
+
+// Função para verificar se o modo administrador está ativo baseado na URL (?adm=coppeuff)
+function isAdmMode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('adm') === 'coppeuff';
+}
 
 const surveys = {
   turista: {
@@ -654,7 +660,7 @@ const surveys = {
       ]},
       {id:'talqi',title:'TALQI – Tempo e Lazer',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
         'Tive tempo suficiente para aproveitar o destino.',
-        'O ritmo da experiência foi adequado and confortável.',
+        'O ritmo da experiência foi adequado e confortável.',
         'Os deslocamentos não comprometeram meu tempo de lazer.',
         'A experiência não foi estressante.',
         'Houve equilíbrio entre atividades e descanso.',
@@ -754,7 +760,7 @@ const surveys = {
         'O trabalho no turismo é satisfatório.',
       ]},
       {id:'cipm',title:'CIPM – Cultura',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
-        'Meu trabalho envolve elementos da cultura local.',
+        'Meu trabalho envolve elements da cultura local.',
         'Há valorização da identidade cultural no setor.',
         'As atividades respeitam tradições locais.',
         'Existe autenticidade nas experiências oferecidas.',
@@ -851,19 +857,24 @@ function openSurvey(pub) {
 
 function selectPublic(pub) {
   // --- VERIFICAÇÃO DE BLOQUEIO DE 24 HORAS NO NAVEGADOR ---
-  const chaveBloqueio = `enviado_${pub}`;
-  const ultimoEnvio = localStorage.getItem(chaveBloqueio);
-  
-  if (ultimoEnvio) {
-    const tempoDecorrido = new Date().getTime() - parseInt(ultimoEnvio);
-    const vinteQuatroHoras = 24 * 60 * 60 * 1000;
+  // Se o modo ADM estiver ativo (?adm=coppeuff), ignora completamente o bloqueio temporário
+  if (!isAdmMode()) {
+    const chaveBloqueio = `enviado_${pub}`;
+    const ultimoEnvio = localStorage.getItem(chaveBloqueio);
     
-    if (tempoDecorrido < vinteQuatroHoras) {
-      const horasRestantes = Math.ceil((vinteQuatroHoras - tempoDecorrido) / (1000 * 60 * 60));
-      alert(`Você já respondeu ao questionário de ${pub} recentemente. Por favor, aguarde mais ${horasRestantes}h para enviar novamente.`);
-      showPage('home');
-      return;
+    if (ultimoEnvio) {
+      const tempoDecorrido = new Date().getTime() - parseInt(ultimoEnvio);
+      const vinteQuatroHoras = 24 * 60 * 60 * 1000;
+      
+      if (tempoDecorrido < vinteQuatroHoras) {
+        const horasRestantes = Math.ceil((vinteQuatroHoras - tempoDecorrido) / (1000 * 60 * 60));
+        alert(`Você já respondeu ao questionário de ${pub} recentemente. Por favor, aguarde mais ${horasRestantes}h para enviar novamente.`);
+        showPage('home');
+        return;
+      }
     }
+  } else {
+    console.log(`[TET-PTP ADM] Ignorando trava de tempo para o perfil: ${pub}`);
   }
   // --------------------------------------------------------
 
@@ -926,7 +937,7 @@ function renderSurvey(pub) {
   container.innerHTML = html;
 }
 
-// VALIDA SE TODAS AS PERGUNTAS FORAM RESPONDIDAS E GRAVA NO FIRESTORE COM TRAVA 24H
+// VALIDA SE TODAS AS PERGUNTAS FORAM RESPONDIDAS E GRAVA NO FIRESTORE
 function submitSurvey() {
   const data = surveys[currentPublic];
   let formularioValido = true;
@@ -990,6 +1001,11 @@ function submitSurvey() {
     timestamp: new Date().toISOString()
   };
 
+  // Se o Modo ADM estiver ativo, salvamos uma tag identificadora no banco
+  if (isAdmMode()) {
+    dadosResposta.modo = "teste_adm";
+  }
+
   inputs.forEach(input => {
     const partesId = input.name.split('_');
     const nomeCampo = partesId[partesId.length - 1]; 
@@ -999,8 +1015,12 @@ function submitSurvey() {
   // Grava na coleção "respostas" do Firebase Firestore
   db.collection("respostas").add(dadosResposta)
   .then(() => {
-    // SALVA O BLOQUEIO DE 24H NO NAVEGADOR DO USUÁRIO
-    localStorage.setItem(`enviado_${currentPublic}`, new Date().getTime().toString());
+    // SÓ SALVA O BLOQUEIO DE 24H NO NAVEGADOR SE NÃO FOR UM ADMINISTRADOR TESTANDO
+    if (!isAdmMode()) {
+      localStorage.setItem(`enviado_${currentPublic}`, new Date().getTime().toString());
+    } else {
+      console.log(`[TET-PTP ADM] Resposta gravada com sucesso. Ignorando criação de trava local.`);
+    }
 
     document.getElementById('main-form').style.display = 'none';
     const sm = document.getElementById('success-msg');
