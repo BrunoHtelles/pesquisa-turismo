@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel do Professor – TET-PTP | UFF</title>
+<title>Painel do Professor Seguro – TET-PTP | UFF</title>
 <style>
   :root {
     --azul: #1a3a6b;
@@ -57,8 +57,10 @@
     border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
   .panel-header h1 { color: var(--azul); font-size: 22px; }
-  .btn-export { background: #27ae60; width: auto; inline-size: max-content; padding: 12px 30px; }
+  .btn-export { background: #27ae60; width: auto; padding: 12px 30px; }
   .btn-export:hover { background: #219152; }
+  .btn-logout { background: #c0392b; width: auto; padding: 6px 15px; font-size: 12px; margin-top: 5px;}
+  .btn-logout:hover { background: #962d22; }
   
   .table-responsive {
     background: var(--branco); border-radius: 8px;
@@ -73,18 +75,21 @@
 </head>
 <body>
 
+  <!-- 1. TELA DE LOGIN -->
   <div class="login-container" id="loginBlock">
     <h2>Acesso do Professor</h2>
-    <input type="text" id="usuario" placeholder="Usuário">
+    <input type="email" id="email" placeholder="E-mail do Professor">
     <input type="password" id="senha" placeholder="Senha">
-    <button class="btn" onclick="efetuarLogin()">Entrar no Painel</button>
+    <button class="btn" onclick="efetuarLoginFirebase()">Entrar no Painel</button>
   </div>
 
+  <!-- 2. PAINEL DE DADOS APÓS LOGIN -->
   <div class="panel-container" id="panelBlock">
     <div class="panel-header">
       <div>
         <h1>Painel de Resultados – Banco de Dados Firestore</h1>
         <p id="totalRegistros">Carregando registros...</p>
+        <button class="btn btn-logout" onclick="efetuarLogout()">Sair / Logout</button>
       </div>
       <button class="btn btn-export" onclick="exportarParaExcel()">📥 Exportar para Excel (.xlsx)</button>
     </div>
@@ -97,18 +102,22 @@
           </tr>
         </thead>
         <tbody id="corpoTabela">
-          </tbody>
+          <!-- Linhas injetadas via JS -->
+        </tbody>
       </table>
     </div>
   </div>
 
+<!-- SCRIPTS DO FIREBASE COMPAT (INCLUINDO O APP, AUTH E FIRESTORE) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+<!-- BIBLIOTECA SHEETJS PARA GERAR EXCEL NO NAVEGADOR -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script>
-// CONFIGURAÇÕES DO SEU FIREBASE (IGUAL AO SEU OUTRO ARQUIVO)
+// CONFIGURAÇÕES DO SEU FIREBASE PROJECT
 const firebaseConfig = {
   apiKey: "AIzaSyDSqufQ6vdgitvtiPpmR5Min4LkpMrqqRQ",
   authDomain: "pesquisa-turismo-ptp.firebaseapp.com",
@@ -118,31 +127,59 @@ const firebaseConfig = {
   appId: "1:268649941715:web:830c7df285ce2344746226"
 };
 
+// Inicializações do Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-// DEFINA AQUI AS CREDENCIAIS DO SEU PROFESSOR
-const CREDENCIAIS_VALIDAS = {
-  usuario: "professor", 
-  senha: "uff" // Mude se quiser uma senha mais forte
-};
+const auth = firebase.auth();
 
 let dadosLocaisExcel = [];
 
-function efetuarLogin() {
-  const u = document.getElementById('usuario').value;
-  const s = document.getElementById('senha').value;
-
-  if (u === CREDENCIAIS_VALIDAS.usuario && s === CREDENCIAIS_VALIDAS.senha) {
+// Ouvinte de Estado de Autenticação (Mantém a sessão caso a página seja recarregada)
+auth.onAuthStateChanged(user => {
+  if (user) {
     document.getElementById('loginBlock').style.display = 'none';
     document.getElementById('panelBlock').style.display = 'block';
     carregarDadosFirestore();
   } else {
-    alert("Usuário ou senha incorretos.");
+    document.getElementById('loginBlock').style.display = 'block';
+    document.getElementById('panelBlock').style.display = 'none';
+    // Reseta variáveis locais ao deslogar
+    dadosLocaisExcel = [];
+    document.getElementById('corpoTabela').innerHTML = "";
+    document.getElementById('cabecalhoTabela').innerHTML = "<th>Carregando colunas...</th>";
   }
+});
+
+// Realiza a tentativa de login via Firebase Authentication
+function efetuarLoginFirebase() {
+  const email = document.getElementById('email').value;
+  const senha = document.getElementById('senha').value;
+
+  if (!email || !senha) {
+    alert("Por favor, preencha todos os campos.");
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(email, senha)
+  .catch(error => {
+    console.error("Erro de autenticação: ", error);
+    alert("E-mail ou senha incorretos.");
+  });
 }
 
+// Efetua a saída do painel administrativo
+function efetuarLogout() {
+  auth.signOut();
+}
+
+// Carrega os dados coletados de forma dinâmica mapeando todas as colunas existentes no Firestore
 function carregarDadosFirestore() {
+  // Blindagem de segurança: Aborta o carregamento caso não haja sessão válida ativa no SDK do cliente
+  if (!auth.currentUser) {
+    console.log("[TET-PTP] Bloqueando tentativa de leitura: Usuário não autenticado.");
+    return;
+  }
+
   db.collection("respostas").orderBy("timestamp", "desc").get()
   .then((snapshot) => {
     if (snapshot.empty) {
@@ -152,26 +189,26 @@ function carregarDadosFirestore() {
 
     document.getElementById('totalRegistros').textContent = `Total: ${snapshot.size} questionários respondidos.`;
 
-    // 1. Mapear todas as chaves (colunas) existentes dinamicamente
-    let colunas = new Set(["timestamp", "perfil", "modo"]); // Colunas base fixas no início
+    // 1. Mapear todas as chaves existentes dinamicamente (pois os formulários variam por público)
+    let colunas = new Set(["timestamp", "perfil", "modo"]);
     snapshot.forEach(doc => {
       Object.keys(doc.data()).forEach(key => colunas.add(key));
     });
     
     const arrayColunas = Array.from(colunas);
 
-    // 2. Renderizar o Cabeçalho da Tabela
+    // 2. Renderizar Cabeçalho da Tabela Administrador
     const cabecalho = document.getElementById('cabecalhoTabela');
     cabecalho.innerHTML = arrayColunas.map(col => `<th>${col.toUpperCase()}</th>`).join('');
 
-    // 3. Renderizar as Linhas de Dados
+    // 3. Renderizar Linhas de Dados da Tabela
     const corpo = document.getElementById('corpoTabela');
     corpo.innerHTML = "";
-    dadosLocaisExcel = []; // Limpa o array de exportação
+    dadosLocaisExcel = []; // Limpa o array local de cache do Excel
 
     snapshot.forEach((doc) => {
       const dados = doc.data();
-      dadosLocaisExcel.push(dados); // Guarda para o Excel
+      dadosLocaisExcel.push(dados); // Popula cache local para o extrator SheetJS
 
       let trHtml = "<tr>";
       arrayColunas.forEach(col => {
@@ -184,23 +221,22 @@ function carregarDadosFirestore() {
   })
   .catch((error) => {
     console.error("Erro ao ler banco de dados: ", error);
-    alert("Erro de conexão ao carregar os dados do Firebase.");
+    alert("Erro de conexão ou falta de permissão para carregar os dados do Firebase. Verifique as regras do Firestore Database.");
   });
 }
 
-// GERA O ARQUIVO EXCEL AUTOMATICAMENTE COM A BIBLIOTECA SHEETJS
+// Compila os objetos carregados e faz a extração direta para arquivo .xlsx
 function exportarParaExcel() {
   if (dadosLocaisExcel.length === 0) {
     alert("Não há dados carregados para exportar.");
     return;
   }
   
-  // Cria uma planilha a partir do array de objetos JSON mapeados do Firestore
   const worksheet = XLSX.utils.json_to_sheet(dadosLocaisExcel);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Pesquisas_Petropolis");
   
-  // Executa o download automático do arquivo formatado
+  // Efetua o download do Blob gerado no cliente
   XLSX.writeFile(workbook, "Resultados_Pesquisa_Turismo_Petropolis.xlsx");
 }
 </script>
