@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Professor – TET-PTP | UFF</title>
+<style>
+  :root {
+    --azul: #1a3a6b;
+    --azul-medio: #1e4d8c;
+    --cinza-claro: #f5f7fa;
+    --cinza-borda: #d0d8e8;
+    --texto: #1a1a2e;
+    --branco: #ffffff;
+    --font-ui: 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-ui);
+    color: var(--texto);
+    background: #f0f4fb;
+    padding: 20px;
+  }
+
+  /* ========== TELA DE LOGIN ========== */
+  .login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: var(--branco);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(26,58,107,0.15);
+    border: 1px solid var(--cinza-borda);
+    text-align: center;
+  }
+  .login-container h2 { color: var(--azul); margin-bottom: 20px; }
+  .login-container input {
+    width: 100%; padding: 12px; margin-bottom: 15px;
+    border: 1px solid var(--cinza-borda); border-radius: 6px;
+    font-size: 14px;
+  }
+  .btn {
+    background: var(--azul); color: white; border: none;
+    padding: 12px 24px; border-radius: 6px; cursor: pointer;
+    font-weight: 700; width: 100%; font-size: 15px;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: #122c54; }
+
+  /* ========== PAINEL DE DADOS ========== */
+  .panel-container { display: none; max-width: 1200px; margin: 0 auto; }
+  .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; background: var(--branco); padding: 20px;
+    border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .panel-header h1 { color: var(--azul); font-size: 22px; }
+  .btn-export { background: #27ae60; width: auto; inline-size: max-content; padding: 12px 30px; }
+  .btn-export:hover { background: #219152; }
+  
+  .table-responsive {
+    background: var(--branco); border-radius: 8px;
+    overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid var(--cinza-borda);
+  }
+  table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+  th, td { padding: 12px 15px; border-bottom: 1px solid var(--cinza-borda); }
+  th { background: var(--azul); color: white; font-weight: 600; text-transform: uppercase; font-size: 11px; }
+  tr:hover { background: var(--cinza-claro); }
+</style>
+</head>
+<body>
+
+  <div class="login-container" id="loginBlock">
+    <h2>Acesso do Professor</h2>
+    <input type="text" id="usuario" placeholder="Usuário">
+    <input type="password" id="senha" placeholder="Senha">
+    <button class="btn" onclick="efetuarLogin()">Entrar no Painel</button>
+  </div>
+
+  <div class="panel-container" id="panelBlock">
+    <div class="panel-header">
+      <div>
+        <h1>Painel de Resultados – Banco de Dados Firestore</h1>
+        <p id="totalRegistros">Carregando registros...</p>
+      </div>
+      <button class="btn btn-export" onclick="exportarParaExcel()">📥 Exportar para Excel (.xlsx)</button>
+    </div>
+
+    <div class="table-responsive">
+      <table id="tabelaRespostas">
+        <thead>
+          <tr id="cabecalhoTabela">
+            <th>Carregando colunas...</th>
+          </tr>
+        </thead>
+        <tbody id="corpoTabela">
+          </tbody>
+      </table>
+    </div>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+// CONFIGURAÇÕES DO SEU FIREBASE (IGUAL AO SEU OUTRO ARQUIVO)
+const firebaseConfig = {
+  apiKey: "AIzaSyDSqufQ6vdgitvtiPpmR5Min4LkpMrqqRQ",
+  authDomain: "pesquisa-turismo-ptp.firebaseapp.com",
+  projectId: "pesquisa-turismo-ptp",
+  storageBucket: "pesquisa-turismo-ptp.firebasestorage.app",
+  messagingSenderId: "268649941715",
+  appId: "1:268649941715:web:830c7df285ce2344746226"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// DEFINA AQUI AS CREDENCIAIS DO SEU PROFESSOR
+const CREDENCIAIS_VALIDAS = {
+  usuario: "professor", 
+  senha: "uff" // Mude se quiser uma senha mais forte
+};
+
+let dadosLocaisExcel = [];
+
+function efetuarLogin() {
+  const u = document.getElementById('usuario').value;
+  const s = document.getElementById('senha').value;
+
+  if (u === CREDENCIAIS_VALIDAS.usuario && s === CREDENCIAIS_VALIDAS.senha) {
+    document.getElementById('loginBlock').style.display = 'none';
+    document.getElementById('panelBlock').style.display = 'block';
+    carregarDadosFirestore();
+  } else {
+    alert("Usuário ou senha incorretos.");
+  }
+}
+
+function carregarDadosFirestore() {
+  db.collection("respostas").orderBy("timestamp", "desc").get()
+  .then((snapshot) => {
+    if (snapshot.empty) {
+      document.getElementById('totalRegistros').textContent = "Nenhuma resposta encontrada no banco de dados.";
+      return;
+    }
+
+    document.getElementById('totalRegistros').textContent = `Total: ${snapshot.size} questionários respondidos.`;
+
+    // 1. Mapear todas as chaves (colunas) existentes dinamicamente
+    let colunas = new Set(["timestamp", "perfil", "modo"]); // Colunas base fixas no início
+    snapshot.forEach(doc => {
+      Object.keys(doc.data()).forEach(key => colunas.add(key));
+    });
+    
+    const arrayColunas = Array.from(colunas);
+
+    // 2. Renderizar o Cabeçalho da Tabela
+    const cabecalho = document.getElementById('cabecalhoTabela');
+    cabecalho.innerHTML = arrayColunas.map(col => `<th>${col.toUpperCase()}</th>`).join('');
+
+    // 3. Renderizar as Linhas de Dados
+    const corpo = document.getElementById('corpoTabela');
+    corpo.innerHTML = "";
+    dadosLocaisExcel = []; // Limpa o array de exportação
+
+    snapshot.forEach((doc) => {
+      const dados = doc.data();
+      dadosLocaisExcel.push(dados); // Guarda para o Excel
+
+      let trHtml = "<tr>";
+      arrayColunas.forEach(col => {
+        let valor = dados[col] !== undefined ? dados[col] : "-";
+        trHtml += `<td>${valor}</td>`;
+      });
+      trHtml += "</tr>";
+      corpo.innerHTML += trHtml;
+    });
+  })
+  .catch((error) => {
+    console.error("Erro ao ler banco de dados: ", error);
+    alert("Erro de conexão ao carregar os dados do Firebase.");
+  });
+}
+
+// GERA O ARQUIVO EXCEL AUTOMATICAMENTE COM A BIBLIOTECA SHEETJS
+function exportarParaExcel() {
+  if (dadosLocaisExcel.length === 0) {
+    alert("Não há dados carregados para exportar.");
+    return;
+  }
+  
+  // Cria uma planilha a partir do array de objetos JSON mapeados do Firestore
+  const worksheet = XLSX.utils.json_to_sheet(dadosLocaisExcel);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Pesquisas_Petropolis");
+  
+  // Executa o download automático do arquivo formatado
+  XLSX.writeFile(workbook, "Resultados_Pesquisa_Turismo_Petropolis.xlsx");
+}
+</script>
+</body>
+</html>
