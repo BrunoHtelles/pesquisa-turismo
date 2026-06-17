@@ -563,7 +563,7 @@
     <div class="researchers">
       <h3>Pesquisadores Responsáveis</h3>
       <div class="researcher">
-        export <strong>Prof. Elton Fernandes, PhD</strong>
+        <strong>Prof. Elton Fernandes, PhD</strong>
         <span>Programas de Engenharia de Produção e de Engenharia de Transportes — COPPE/UFRJ</span>
       </div>
       <div class="researcher">
@@ -627,7 +627,9 @@ const surveys = {
         {id:'motivo',label:'Principal motivo da visita',type:'radio',required:true,options:['Lazer','Cultura','Natureza','Gastronomia','Negócios','Evento','Outro']},
         {id:'hospedagem',label:'Tipo de hospedagem',type:'radio',options:['Hotel / pousada','Casa de parentes/amigos','Aluguel por aplicativo','Hostel','Outro']},
         {id:'permanencia',label:'Tempo de permanência',type:'radio',required:true,options:['1 dia','2–3 dias','Mais de 3 dias']},
-        {id:'origem',label:'Origem (cidade/estado/País)',type:'text',placeholder:'Ex: Rio de Janeiro / RJ / Brasil'},
+        {id:'pais',label:'País de Origem',type:'text',required:true,placeholder:'Ex: Brasil'},
+        {id:'estado',label:'Estado de Origem',type:'text',required:true,placeholder:'Ex: Rio de Janeiro'},
+        {id:'cidade',label:'Cidade de Origem',type:'text',required:true,placeholder:'Ex: Rio de Janeiro'},
         {id:'local_coleta',label:'Local da coleta',type:'text',placeholder:'Ex: Centro Histórico'},
       ]},
       {id:'etpi',title:'ETPI – Sustentabilidade Ambiental',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
@@ -635,7 +637,7 @@ const surveys = {
         'Observei níveis adequados de limpeza urbana e conservação dos espaços turísticos.',
         'O turismo parece contribuir para a preservação dos recursos naturais locais.',
         'Não identifiquei sinais relevantes de degradação ambiental associados ao turismo.',
-        'O destino demonstra preocupação ativa com sustentabilidade ecológica.',
+        'O destino demonstra preocupação activa com sustentabilidade ecológica.',
       ]},
       {id:'rhs',title:'RHS – Hospitalidade Relacional',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
         'Fui recebido(a) de forma cordial e respeitosa pela comunidade local.',
@@ -681,7 +683,9 @@ const surveys = {
         {id:'escolaridade',label:'Escolaridade',type:'radio',required:true,options:['Ensino fundamental','Ensino médio','Ensino técnico','Superior incompleto','Superior completo','Pós-graduação']},
         {id:'renda',label:'Renda mensal',type:'radio',options:['Até 1 Salário Mínimo (SM)','1 a 3 Salários Mínimos (SM)','3 a 5 Salários Mínimos (SM)','5 a 10 Salários Mínimos (SM)','Acima de 10 Salários Mínimos (SM)','Prefiro não informar']},
         {id:'tempo_moradia',label:'Tempo de moradia em Petrópolis',type:'radio',required:true,options:['Até 1 ano','2–3 anos','Mais de 3 anos']},
-        {id:'origem',label:'Origem (cidade/estado/País)',type:'text',placeholder:'Ex: Petrópolis / RJ / Brasil'},
+        {id:'pais',label:'País de Origem',type:'text',required:true,placeholder:'Ex: Brasil'},
+        {id:'estado',label:'Estado de Origem',type:'text',required:true,placeholder:'Ex: Rio de Janeiro'},
+        {id:'cidade',label:'Cidade de Origem',type:'text',required:true,placeholder:'Ex: Petrópolis'},
         {id:'local_coleta',label:'Local da coleta',type:'text',placeholder:'Ex: Bairro / Distrito'},
       ]},
       {id:'etpi',title:'ETPI – Sustentabilidade Ambiental',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
@@ -735,7 +739,9 @@ const surveys = {
         {id:'renda',label:'Renda mensal',type:'radio',options:['Até 1 Salário Mínimo (SM)','1 a 3 Salários Mínimos (SM)','3 a 5 Salários Mínimos (SM)','5 a 10 Salários Mínimos (SM)','Acima de 10 Salários Mínimos (SM)','Prefiro não informar']},
         {id:'tempo_atuacao',label:'Tempo de atuação no turismo',type:'radio',required:true,options:['Até 1 ano','2–3 anos','Mais de 3 anos']},
         {id:'area_atuacao',label:'Área de atuação',type:'radio',required:true,options:['Hotel','Guia de turismo','Comércio varejista','Indústria','Agência','Outro']},
-        {id:'origem',label:'Origem (cidade/estado/País)',type:'text',placeholder:'Ex: Petrópolis / RJ / Brasil'},
+        {id:'pais',label:'País de Origem',type:'text',required:true,placeholder:'Ex: Brasil'},
+        {id:'estado',label:'Estado de Origem',type:'text',required:true,placeholder:'Ex: Rio de Janeiro'},
+        {id:'cidade',label:'Cidade de Origem',type:'text',required:true,placeholder:'Ex: Petrópolis'},
         {id:'local_coleta',label:'Local da coleta',type:'text',placeholder:'Ex: Centro Histórico'},
       ]},
       {id:'etpi',title:'ETPI – Sustentabilidade',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
@@ -760,7 +766,7 @@ const surveys = {
         'O trabalho no turismo é satisfatório.',
       ]},
       {id:'cipm',title:'CIPM – Cultura',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
-        'Meu trabalho envolve elements da cultura local.',
+        'Meu trabalho envolve elementos da cultura local.',
         'Há valorização da identidade cultural no setor.',
         'As atividades respeitam tradições locais.',
         'Existe autenticidade nas experiências oferecidas.',
@@ -789,8 +795,9 @@ const surveys = {
         {id:'renda',label:'Renda mensal',type:'radio',options:['Até 1 Salário Mínimo (SM)','1 a 3 Salários Mínimos (SM)','3 a 5 Salários Mínimos (SM)','5 a 10 Salários Mínimos (SM)','Acima de 10 Salários Mínimos (SM)','Prefiro não informar']},
         {id:'tempo_atuacao',label:'Tempo de atuação no turismo',type:'radio',required:true,options:['Até 1 ano','2–3 anos','Mais de 3 anos']},
         {id:'area_atuacao',label:'Área de atuação',type:'radio',required:true,options:['Hotel','Guia de turismo','Comércio varejista','Indústria','Agência','Outro']},
-        {id:'origem',label:'Origem (cidade/estado/País)',type:'text',placeholder:'Ex: Petrópolis / RJ / Brasil'},
-        {id:'local_coleta',label:'Local da coleta',type:'text',placeholder:'Ex: Centro / Quitandinha'},
+        {id:'pais',label:'País de Origem',type:'text',required:true,placeholder:'Ex: Brasil'},
+        {id:'estado',label:'Estado de Origem',type:'text',required:true,placeholder:'Ex: Rio de Janeiro'},
+        {id:'cidade',label:'Cidade de Origem',type:'text',required:true,placeholder:'Ex: Centro / Quitandinha'},
       ]},
       {id:'etpi',title:'ETPI – Sustentabilidade',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
         'Minha empresa adota práticas ambientais sustentáveis.',
@@ -857,7 +864,6 @@ function openSurvey(pub) {
 
 function selectPublic(pub) {
   // --- VERIFICAÇÃO DE BLOQUEIO DE 24 HORAS NO NAVEGADOR ---
-  // Se o modo ADM estiver ativo (?adm=coppeuff), ignora completamente o bloqueio temporário
   if (!isAdmMode()) {
     const chaveBloqueio = `enviado_${pub}`;
     const ultimoEnvio = localStorage.getItem(chaveBloqueio);
