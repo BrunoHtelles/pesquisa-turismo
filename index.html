@@ -1,3 +1,8 @@
+Aqui está o código completo do seu arquivo HTML. Juntei a validação de todas as perguntas com a trava de segurança do `localStorage` tanto no carregamento (`selectPublic`) quanto no salvamento (`submitSurvey`).
+
+Pode copiar tudo e colar por cima do seu arquivo antigo:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -641,7 +646,7 @@ const surveys = {
       {id:'twi',title:'TWI – Bem-estar',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
         'A experiência turística proporcionou sensação de bem-estar.',
         'Senti-me seguro(a) durante toda a visita.',
-        'A cidade offers um ambiente agradável e confortável.',
+        'A cidade oferece um ambiente agradável e confortável.',
         'Minha experiência geral foi satisfatória.',
         'Eu recomendaria este destino a outras pessoas.',
       ]},
@@ -685,7 +690,7 @@ const surveys = {
         'O turismo contribui para melhorias ambientais.',
         'Existe preocupação com sustentabilidade no planejamento urbano.',
       ]},
-      {id:'rhs',title:'RHS – Relações Social',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
+      {id:'rhs',title:'RHS – Relações Sociais',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
         'Os turistas respeitam a população local.',
         'O turismo melhora a convivência social na cidade.',
         'A comunidade participa das decisões sobre turismo.',
@@ -812,7 +817,7 @@ const surveys = {
         'Há valorização da identidade regional.',
         'Existe pressão por padronização dos serviços.',
         'A autenticidade cultural agrega valor ao negócio.',
-        'O patrimônio cultural é incorporado à oferta.',
+        'O patrimonio cultural é incorporado à oferta.',
       ]},
       {id:'talqi',title:'TALQI – Tempo',subtitle:'1 = Discordo totalmente  |  2 = Discordo  |  3 = Neutro  |  4 = Concordo  |  5 = Concordo totalmente',type:'likert',items:[
         'O fluxo turístico é equilibrado ao longo do ano.',
@@ -850,6 +855,23 @@ function openSurvey(pub) {
 }
 
 function selectPublic(pub) {
+  // --- VERIFICAÇÃO DE BLOQUEIO DE 24 HORAS NO NAVEGADOR ---
+  const chaveBloqueio = `enviado_${pub}`;
+  const ultimoEnvio = localStorage.getItem(chaveBloqueio);
+  
+  if (ultimoEnvio) {
+    const tempoDecorrido = new Date().getTime() - parseInt(ultimoEnvio);
+    const vinteQuatroHoras = 24 * 60 * 60 * 1000;
+    
+    if (tempoDecorrido < vinteQuatroHoras) {
+      const horasRestantes = Math.ceil((vinteQuatroHoras - tempoDecorrido) / (1000 * 60 * 60));
+      alert(`Você já respondeu ao questionário de ${pub} recentemente. Por favor, aguarde mais ${horasRestantes}h para enviar novamente.`);
+      showPage('home');
+      return;
+    }
+  }
+  // --------------------------------------------------------
+
   currentPublic = pub;
   const labels = {turista:'Turista', morador:'Morador', trabalhador:'Trabalhador', empresario:'Empresário'};
   document.querySelectorAll('.public-btn').forEach(b => {
@@ -909,7 +931,7 @@ function renderSurvey(pub) {
   container.innerHTML = html;
 }
 
-// VALIDA SE TODAS AS PERGUNTAS FORAM RESPONDIDAS E GRAVA NO FIRESTORE
+// VALIDA SE TODAS AS PERGUNTAS FORAM RESPONDIDAS E GRAVA NO FIRESTORE COM TRAVA 24H
 function submitSurvey() {
   const data = surveys[currentPublic];
   let formularioValido = true;
@@ -933,8 +955,6 @@ function submitSurvey() {
         const selectorName = `${currentPublic}_${sec.id}_${field.id}`;
         
         if (field.type === 'radio' || field.type === 'nota') {
-          // Notas e radios de identificação (exceto renda que não tem required explicito, mas notas gerais e outros costumam ser cruciais)
-          // Se quiser apenas os estritamente marcados como required: true
           if (field.required || field.type === 'nota') { 
             const selecionado = document.querySelector(`input[name="${selectorName}"]:checked`);
             if (!selecionado) {
@@ -984,6 +1004,9 @@ function submitSurvey() {
   // Grava na coleção "respostas" do Firebase Firestore
   db.collection("respostas").add(dadosResposta)
   .then(() => {
+    // SALVA O BLOQUEIO DE 24H NO NAVEGADOR DO USUÁRIO
+    localStorage.setItem(`enviado_${currentPublic}`, new Date().getTime().toString());
+
     document.getElementById('main-form').style.display = 'none';
     const sm = document.getElementById('success-msg');
     sm.style.display = 'block';
